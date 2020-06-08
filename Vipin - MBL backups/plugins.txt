@@ -1,0 +1,10 @@
+plugins
+--------
+angularJS for wordpress (roy sivan)
+
+
+
+web-api url in javascript
+hardcoded urls in wp pages for submit/noticeboard/gallery...
+add a mime type for thumb file extension
+sql database

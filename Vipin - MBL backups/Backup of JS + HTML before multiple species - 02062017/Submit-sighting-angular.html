@@ -1,0 +1,217 @@
+[RAW]
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="http://mbl.20westbourne.com/wp-content/plugins/angularjs-for-wp/style/angular-block-ui/angular-block-ui.css" />
+<link rel="stylesheet" href="http://mbl.20westbourne.com/wp-content/plugins/angularjs-for-wp/style/MBLStyle.css" />
+
+<div ng-controller="formController" ng-cloak block-ui="main" class="container-fluid block-ui-main">
+    <div class="page-header">
+        <h2> Submit Sighting</h2>
+    </div>
+
+    <div uib-alert ng-class="'alert-success'" ng-show="data.submittedOK">
+        <i class="fa fa-check-circle" aria-hidden="true"></i>
+        Thanks! You've successfully submitted sighting informtion.
+    </div>
+
+    <form name="sightForm" class="form-horizontal" novalidate>
+
+        <div class="form-group">
+            <label class="checkbox col-md-offset-2">
+                <input type="checkbox" ng-model="data.chkSensitiveDoNotDisplay">
+                Sensitive record, Do not display
+            </label>
+        </div>
+        <div class="form-group">
+            <label class="checkbox col-md-offset-2">
+                <input type="checkbox" ng-model="data.chkKeepAnonymous">
+                Keep my name anonymous
+            </label>
+        </div>
+        <!--name-->
+        <div class="form-group row required" ng-class="{'has-error':sightForm.name.$invalid && !sightForm.name.$pristine}">
+            <label class="control-label col-md-2">
+                Name
+            </label>
+            <div class="col-md-6">
+                <input type="text" name="name" ng-model="data.userName" ng-required="true" class="form-control" uib-tooltip="Please enter your name." tooltip-class="customToolTipClass" />
+            </div>
+            <div class="col-md-4">
+                <span ng-show="sightForm.name.$invalid && !sightForm.name.$pristine" class="help-block">Your name is required.</span>
+            </div>
+        </div>
+        <!--email-->
+        <div class="form-group row required" ng-class="{'has-error':sightForm.email.$invalid && !sightForm.email.$pristine}">
+            <label class="control-label col-md-2">
+                Email
+            </label>
+            <div class="col-md-6">
+                <input type="email" name="email" ng-model="data.userEmail" required class="form-control" ng-model-options="{ updateOn: 'blur' }"
+                       uib-tooltip="Please enter your valid email address." tooltip-class="customToolTipClass" />
+            </div>
+            <div class="col-md-4">
+                <span ng-show="sightForm.email.$invalid && !sightForm.email.$pristine" class=" help-block">A valid email address is required.</span>
+            </div>
+        </div>
+
+
+        <div class="col-md-12 SetLeftPaddingToZero SetRightPaddingToZero">
+            <uib-accordion close-others="true">
+                <div uib-accordion-group class="panel-default" is-disabled="false" ng-init="sightInfo.TabOpen = $first" is-open="sightInfo.TabOpen" ng-repeat="sightInfo in data.sightingsArray track by $index">
+                    <uib-accordion-heading ng-click="sightInfo.TabOpen = !sightInfo.TabOpen">
+                        Sighting {{$index + 1}}
+                        <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': sightInfo.TabOpen, 'glyphicon-chevron-right': !sightInfo.TabOpen}"></i>
+                    </uib-accordion-heading>
+
+                    <!--species & location-->
+                    <div class="row AddLeftPadding">
+                        <!--species-->
+                        <div class="form-group required col-md-6" ng-class="{'has-error':sightForm.speciesSelected.$invalid && !sightForm.speciesSelected.$pristine}">
+                            <label class="control-label col-md-4">
+                                Species
+                            </label>
+                            <div class="col-md-8">
+                                <input type="text" name="speciesSelected"
+                                       ng-model="sightInfo.speciesSelected" required
+                                       class="form-control"
+                                       uib-typeahead="sp.ID as sp.Name for sp in speciesArray | filter:$viewValue"
+                                       typeahead-input-formatter="sightInfo.formatSpeciesLabel($model)"
+                                       typeahead-min-length="3"
+                                       uib-tooltip="Enter species name or select from list (appears after typing in 3 characters)"
+                                       tooltip-class="customToolTipClass" />
+                                <span ng-show="sightForm.speciesSelected.$invalid && !sightForm.speciesSelected.$pristine" class="help-block">Species detail is required.</span>
+                            </div>
+
+                        </div>
+                        <!--location-->
+                        <div class="form-group required col-md-6" ng-class="{'has-error':sightForm.locationSelected.$invalid && !sightForm.locationSelected.$pristine}">
+                            <label class="control-label col-md-4">Location</label>
+                            <div class="col-md-8">
+                                <input type="text" name="locationSelected"
+                                       ng-model="sightInfo.locationSelected" required
+                                       class="form-control"
+                                       uib-typeahead="lc.ID as lc.Name for lc in locationArray |filter:$viewValue"
+                                       typeahead-input-formatter="sightInfo.formatLocationLabel($model)"
+                                       typeahead-min-length="3"
+                                       uib-tooltip="Enter location or select from list (appears after typing in 3 characters)"
+                                       tooltip-class="customToolTipClass" />
+                                <span ng-show="sightForm.locationSelected.$invalid && !sightForm.locationSelected.$pristine" class="help-block">Location detail is required.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--grid reference-->
+                    <div class="form-group row">
+                        <label class="control-label col-md-2">Grid Reference</label>
+                        <div class="col-md-8">
+                            <input type="text" ng-model="sightInfo.gridReference" class="form-control" uib-tooltip="Please enter any grid reference." tooltip-class="customToolTipClass" />
+                        </div>
+                    </div>
+
+                    <!--Date & Time-->
+                    <div class="form-group required" ng-class="{'has-error':sightForm.dt.$invalid && !sightForm.dt.$pristine}">
+                        <div class="col-md-2 AddVerticalPadding" style="text-align:right;">
+                            <label class="control-label">Date</label>
+                        </div>
+                        <div class="col-md-4 AddVerticalPadding">
+                            <p class="input-group">
+                                <input type="text" name="dt" class="form-control" required uib-datepicker-popup="{{format}}" ng-model="sightInfo.dt" is-open="sightInfo.calendarOpened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" uib-tooltip="Please select date and time" tooltip-class="customToolTipClass" />
+                                <span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="sightInfo.openCalendar()"><i class="glyphicon glyphicon-calendar"></i></button></span>
+                            </p>
+                            <p ng-show="sightForm.dt.$invalid && !sightForm.dt.$pristine" class="help-block">Date is required.</p>
+                        </div>
+                        <div class="col-md-4" uib-timepicker ng-model="sightInfo.myTime" hour-step="1" minute-step="15" show-meridian="false">
+                        </div>
+                    </div>
+
+                    <!--number-->
+                    <div class="form-group row required" ng-class="{'has-error':sightForm.speciesNumber.$invalid && !sightForm.speciesNumber.$pristine}">
+                        <label class="control-label col-md-2">Number</label>
+                        <div class="col-md-2">
+                            <input type="number" name="speciesNumber" ng-model="sightInfo.speciesnumber" required class="form-control" uib-tooltip="Please enter number of species." tooltip-class="customToolTipClass" />
+                        </div>
+                        <div class="col-md-4">
+                            <span ng-show="sightForm.speciesNumber.$invalid && !sightForm.speciesNumber.$pristine" class="help-block">Number is required.</span>
+                        </div>
+                    </div>
+
+                    <!--approximation-->
+                    <div class="form-group row">
+                        <label class="control-label col-md-2">Approximation</label>
+                        <div class="col-md-2">
+                            <input type="text" ng-model="sightInfo.approximation" class="form-control" />
+                        </div>
+                    </div>
+                    <!--details-->
+                    <div class="form-group row">
+                        <label class="control-label col-md-2">Details</label>
+                        <div class="col-md-6">
+                            <textarea ng-model="sightInfo.details" class="form-control" rows="5"></textarea>
+                        </div>
+                    </div>
+
+                    <!--add image-->
+                    <div class="form-group">
+                        <ng-form name="innerForm">
+                            <label class="control-label col-md-2">
+                                Drop File:
+                            </label>
+                            <div class="col-md-4">
+                                <button name="file"
+                                        class="drop-box form-control"
+                                        ngf-drop
+                                        ngf-select
+                                        ng-model="sightInfo.dropFile"
+                                        ngf-model-invalid="errorFile"
+                                        ngf-drag-over-class="dragover"
+                                        ngf-multiple="false"
+                                        ngf-allow-dir="true"
+                                        ngf-capture="'camera'"
+                                        ngf-accept="'image/*,application/pdf'"
+                                        ngf-max-files="1"
+                                        ngf-max-size="2MB"
+                                        ngf-pattern="'image/*,application/pdf'">
+                                    Drop pdfs or images here or click to upload
+                                </button>
+                                <div ngf-no-file-drop>
+                                    File Drag/Drop is not supported for this browser
+                                </div>
+
+                            </div>
+                            <div class="col-md-4">
+                                <img ngf-src="sightInfo.dropFile" ng-class="{'thumb' : sightInfo.dropFile}" />
+                                <div ng-click="sightInfo.dropFile = null" ng-show="sightInfo.dropFile" style="cursor:pointer;">
+                                    <i class="fa fa-times"></i>
+                                </div>
+                                <span ng-show="innerForm.file.$error.maxSize" class="has-error">
+                                    Selected file of size {{errorFile.size / 1000000|number:1}}MB too large to upload (max size 2 MB).
+                                </span>
+                            </div>
+                        </ng-form>
+                    </div>
+
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-primary btn-sm" ng-show="showAddButton && $last" ng-click="addSighting()">
+                            <i class="fa fa-plus"></i> Add more sighting
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" ng-show="!$first" ng-click="removeSighting($index)">
+                            <i class="fa fa-times fa-lg" aria-hidden="true"></i> Remove this sighting
+                        </button>
+                    </div>
+
+                </div>
+            </uib-accordion>
+        </div>
+
+
+        <!--submit button-->
+        <br />
+        <div class="col-md-offset-2">
+            <button ng-disabled="sightForm.$invalid" class="btn btn-md btn-success" ng-click="uploadNow()" ng-class="{'disabled' : sightForm.$invalid}">
+                <i class="fa fa-binoculars"></i> Submit Sighting
+            </button>
+        </div>
+    </form>
+
+</div>
+[/raw]
