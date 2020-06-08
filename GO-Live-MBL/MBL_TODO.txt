@@ -1,0 +1,38 @@
+Original TODO
+==============
+
+file not being uploaded error
+checkbox to not to display on noticeboard being ignored
+
+checkbox for data agreement DAPR
+chnage the display of species order to 'Name' 
+
+Pending TODO
+============
+
+2) update species /location lookup
+3) admin panel - location/species lookup being cut off
+
+
+Modifications
+===============
+new angulagr.js javscript file for mbl
+new api dll (don't put web.config) - DONE
+new DB column in mbl_reportuser
+
+<!-------------------
+ALTER TABLE MBL_SightReportUser
+ADD boolPermissionToContact bit
+--------------------->
+
+new DB-extract-sql
+
+DONE
+====
+
+1) uploaded latest dll
+2) uploaded latest angularjs
+1) add GDPR checkbox on ui
+
+
+admin:B7qKnke8eAuMjVbL:0.7201607495004048

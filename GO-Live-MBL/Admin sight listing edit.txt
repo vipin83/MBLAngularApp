@@ -1,0 +1,287 @@
+[RAW]
+
+<!-- Do not change URL/Permalink, e.g. do not append page to a WP Parent page -->
+
+<table id="table_sightings" align="right"><tbody>
+<TR valign=top><td class="sightings_style"><a href="?page_id=10938">Sightings</a></td><td class="sightings_style"><a href="?page_id=10941">Submit</a></td><td class="sightings_style"><a href="?page_id=10943">Gallery</a></td><td class="sightings_style"><a href="?page_id=11113">Help</a></td></TR>
+</tbody></table><h3><span style="color: #006633;"><strong>Sightings administration</strong></span></h3><p><strong>!Admin is not supported by Internet Explorer 11!</strong></p>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/wp-content/plugins/angularjs-for-wp/style/angular-block-ui/angular-block-ui.css" />
+<link rel="stylesheet" href="/wp-content/plugins/angularjs-for-wp/style/Noticeboard.css" />
+
+
+<div ng-controller="AdminSightingController" ng-cloak block-ui="main" class="container-fluid block-ui-main">
+    <div uib-alert ng-class="'alert-success'" class="feedbackBox" ng-show="submittedOK" close="closeAlert()" dismiss-on-timeout="2000">
+        <i class="fa fa-check-circle" aria-hidden="true"></i>
+        Sighting edited successfully.
+    </div>
+
+    <div uib-alert ng-class="'alert-danger'" class="feedbackBox" ng-show="submittedError" close="closeAlert()" dismiss-on-timeout="2000">
+        <i class="fa fa-times-circle-o" aria-hidden="true"></i>
+        Oops! Unfortunatly there seems to be an error, please try again later.
+    </div>
+
+    <div class="pull-left bg-warning SetPaddingOf10 col-md-12">
+        <div class="col-md-6">
+            <label class="checkbox">
+                <input type="checkbox" ng-model="boolShowOnlySensitive" ng-false-value="undefined">
+                Only show records of <span class="text-danger">Sensitive species</span>
+            </label>
+        </div>
+    </div>
+
+
+    <div class="col-md-offset-5 col-md-7 SetPaddingOf10">
+        <div class="col-md-3">
+            <select ng-model="paging.viewby" ng-change="setItemsPerPage(paging.viewby)">
+                <option value="10">Show 10 per page</option>
+                <option value="25">Show 25 per page</option>
+                <option value="50">Show 50 per page</option>
+                <option value="100">Show 100 per page</option>
+            </select>
+        </div>
+        <div class="col-md-9">
+            <ul ng-cloak uib-pagination total-items="filtered.length"
+                ng-model="paging.currentPage" class="pagination-sm"
+                ng-change="pageChanged()" items-per-page="paging.itemsPerPage"
+                boundary-link-numbers="true" max-size="6" rotate="false"></ul>
+        </div>
+    </div>
+
+    <div class="table-responssive">
+        <table class="table table-condensed table-hover">
+            <thead class="thead-inverse">
+                <tr>
+                    <th></th>
+                    <th ng-click="SortBy('SightDate')">Date&nbsp; <i class="fa fa-sort"></i></th>
+                    <th ng-click="SortBy('SightTime')">Time&nbsp; <i class="fa fa-sort"></i></th>
+                    <th ng-click="SortBy('SpeciesName')">Species&nbsp; <i class="fa fa-sort"></i></th>
+                    <th ng-click="SortBy('Number')">No.&nbsp; <i class="fa fa-sort"></i></th>
+                    <th ng-click="SortBy('LocationName')">Location&nbsp; <i class="fa fa-sort"></i></th>
+                    <th ng-click="SortBy('GridRef')">Grid ref.&nbsp; <i class="fa fa-sort"></i></th>
+                    <th ng-click="SortBy('Observer')">Observer(s)&nbsp; <i class="fa fa-sort"></i></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat-start="sight in filtered = (sightList | filter: {boolOverrideSensitiveSpeciesRecord: boolShowOnlySensitive} )
+                    | start: (paging.currentPage - 1) * paging.itemsPerPage | limitTo: paging.itemsPerPage
+                    | orderBy:propertyName:reverse" ng-class="{'highlightRow': sight.rowExpanded, 'text-danger':sight.boolNeedApproval}">
+
+                    <td ng-click="ShowSightDetails(sight)" ng-class="{'rowMousePointer' : sight.Details}">
+                        <i ng-if="sight.Details && !sight.rowExpanded" class="fa fa-plus-square-o"></i>
+                        <i ng-if="sight.Details && sight.rowExpanded" class="fa fa-minus-square-o"></i>
+                    </td>
+                    <td>
+                        {{sight.SightDate | date: 'dd MMM yy'}}
+                    </td>
+                    <td>
+                        {{sight.SightTime | date: 'HH:mm'}}
+                    </td>
+                    <td>
+                        {{sight.SpeciesName}}
+                    </td>
+                    <td>
+                        {{sight.Number}}
+                    </td>
+                    <td>
+                        {{sight.LocationName}}
+                    </td>
+                    <td>
+                        {{sight.GridRef}}
+                    </td>
+                    <td>
+                        {{sight.boolDoNotDisplayObserver ? "Undisclosed" : sight.Observer }}
+                    </td>
+                    <td>
+                        <i ng-class="{'fa fa-camera fa-lg':sight.HasImage}" ng-click="openModalDialog(sight)" style="cursor:pointer;"></i>
+                    </td>
+                    <td>
+                        <i class="fa fa-pencil" ng-click="EditSighting(sight)" style="cursor:pointer;"></i>
+                    </td>
+
+                </tr>
+                <tr ng-repeat-end ng-if="isSelected(sight) && sight.Details && sight.rowExpanded" ng-class="{'highlightRow' : sight.rowExpanded, 'text-danger' : sight.boolNeedApproval}">
+                    <td colspan="5"></td>
+                    <td colspan="5">{{sight.Details}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <script type="text/ng-template" id="myModalContent.html">
+
+        <div class="modal-body">
+            <span class="fa fa-close PullRight" ng-click="cancel()"></span>
+            <div>
+                <span class="PullLeft">
+                    {{currentSight.SpeciesName}}, {{currentSight.LocationName}} <br />
+                    © {{currentSight.Observer}} ({{currentSight.SightDate | date: 'dd MMMM yyyy'}})
+                </span>
+                <img ng-src="{{currentSight.ImagePath}}" width="100%" height="100%" alt="{{currentSight.SpeciesName}}" />
+
+    </script>
+
+
+    <script type="text/ng-template" id="EditSighting.html">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">Edit Sight</h3>
+        </div>
+        <div class="modal-body" id="modal-body">
+
+
+
+            <form name="sightForm" class="form-horizontal" novalidate>
+
+                <div class="col-md-12">
+                    <!--name-->
+                    <div class="form-group row required col-md-4">
+                        <label class="control-label col-md-3" style="text-align:left;width:14%;">
+                            Name
+                        </label>
+                        <div class="col-md-9">
+                            <input type="text" name="name" ng-model="currentSight.Observer" ng-readonly="true" class="form-control" />
+                        </div>
+
+                    </div>
+
+                    <!--email-->
+                    <div class="form-group row required col-md-4">
+                        <label class="control-label col-md-3">
+                            Email
+                        </label>
+                        <div class="col-md-9">
+                            <input type="email" name="email" ng-model="currentSight.ObserverEmail" ng-readonly="true" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!--keep my name anonymous-->
+                    <div class="col-md-4">
+                        <label class="checkbox">
+                            <input type="checkbox" ng-model="currentSight.boolDoNotDisplayObserver" ng-disabled="true">
+                            Do not display my name on noticeboard
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="col-md-12">
+                    <!--Date/Time-->
+                    <div class="form-group row required col-md-4">
+                        <label class="control-label col-md-4" style="text-align:left;width:14%;">
+                            Date
+                        </label>
+                        <div class="col-md-5">
+                            <input type="text" name="name" ng-model="currentSight.SightDate" ng-readonly="true" class="form-control" />
+                        </div>
+                        <div class="col-md-3 SetLeftPaddingToZero SetRightPaddingToZero">
+                            <input type="text" name="name" ng-model="currentSight.SightTime" ng-readonly="true" class="form-control" />
+                        </div>
+
+                    </div>
+
+                    <!--location-->
+                    <div class="form-group row required col-md-4" ng-class="{'has-error':currentSight.boolNewUnApprovedLocationName}">
+                        <label class="control-label col-md-3">
+                            Location
+                        </label>
+                        <div class="col-md-9">
+                            <input type="text" name="LocationName"
+                                   ng-model="currentSight.LocationName" required                                  
+                                   class="form-control"
+                                   uib-typeahead="lc.ID as lc.Name for lc in locationArray |filter:$viewValue"
+                                   typeahead-input-formatter="formatLocationLabel($model)"
+                                   typeahead-min-length="3"
+                                   typeahead-on-select="onLocationSelect($item, $model, $label)"
+                                   ng-change="Clear()" typeahead-editable="false"
+                                   autocomplete="off" />
+
+                        </div>
+                    </div>
+
+                    <div class="form-group row required col-md-4">
+                        <label class="control-label col-md-3 SetLeftPaddingToZero">
+                            Grid Ref
+                        </label>
+                        <div class="col-md-9">
+                            <input type="text" name="gridRef" ng-model="currentSight.GridRef" ng-readonly="false" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-12">
+                    <!--Species-->
+                    <div class="form-group row required col-md-4">
+                        <div class="row" ng-class="{'has-error' : currentSight.boolNewUnApprovedSpeciesName}">
+                            <label class="control-label col-md-2">
+                                Species
+                            </label>
+                            <div class="col-md-8">
+
+                                <input type="text" name="SpeciesName"
+                                       ng-model="currentSight.SpeciesName" required
+                                       class="form-control"
+                                       uib-typeahead="sp.ID as sp.Name for sp in speciesArray | filter:$viewValue"
+                                       typeahead-input-formatter="formatSpeciesLabel($model)"
+                                       typeahead-min-length="3"
+                                       typeahead-on-select="onSpeciesSelect($item, $model, $label)" typeahead-editable="false"
+                                       autocomplete="off" />
+                            </div>
+                        </div>
+
+                        <div class="row col-md-12">
+                            <label class="checkbox">
+                                <input type="checkbox" ng-model="currentSight.boolOverrideSensitiveSpeciesRecord">
+                                Do not display record on noticeboard (override user preference)
+                            </label>
+
+                        </div>
+                    </div>
+                    <!--Number-->
+                    <div class="form-group row required col-md-4">
+                        <label class="control-label col-md-3">
+                            Number
+                        </label>
+                        <div class="col-md-4">
+                            <input type="text" name="number" ng-model="currentSight.Number" ng-readonly="true" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row required col-md-4">
+                        <label class="control-label col-md-3">Details &nbsp;</label>
+                        <div class="col-md-9">
+                            <textarea ng-model="currentSight.Details" class="form-control" rows="3" ng-readonly="false"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-primary btn-lg" type="button" ng-click="submitChanges()" ng-class="{'disabled' : sightForm.$invalid}">
+                <i class="fa fa-check">
+                </i>Submit
+            </button>
+            <button class="btn btn-warning btn-lg" type="button" ng-click="cancelChanges()">
+                <i class="fa fa-times">
+                </i>Cancel
+            </button>
+        </div>
+
+
+    </script>
+
+</div>
+
+<p style="text-align: right;"><br><em>With thanks to</em> <a href="http://www.boldconsultancy.com" target="_blank" rel="noopener">Bold Consultancy</a><em>, Isle of Man</em>.</p>[/raw]

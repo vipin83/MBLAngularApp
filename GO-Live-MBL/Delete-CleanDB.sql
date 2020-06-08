@@ -1,0 +1,6 @@
+DELETE FROM [dbo].[MBL_SpeciesSightingUploadFile]
+DELETE FROM [dbo].[MBL_SpeciesSightingDetails]
+DELETE FROM [dbo].[MBL_SightDetails]
+DELETE FROM  [dbo].[MBL_SightReportUser]
+DELETE FROM  [dbo].[LocationLookup]
+DELETE FROM  [dbo].[SpeciesLookup]
